@@ -16,12 +16,24 @@ Archive behavior on success:
     folder, appended with today's date (DD-MM-YYYY).
 """
 
-import sys, os, re, glob, argparse, platform, shutil
+import sys, os, re, glob, platform, shutil
 from datetime import datetime
 from collections import defaultdict
+import io
 
-import pdfplumber
+# --- [ส่วนที่เพิ่มใหม่] บังคับให้เปลี่ยนโฟลเดอร์ทำงานมาที่อยู่ปัจจุบันเสมอ (แก้ปัญหาดับเบิลคลิกบน Mac) ---
+if getattr(sys, 'frozen', False):
+    application_path = os.path.dirname(sys.executable)
+    # เผื่อกรณีรันเป็นไฟล์ .app
+    if sys.platform == 'darwin' and application_path.endswith('MacOS'):
+        application_path = os.path.abspath(os.path.join(application_path, '../../..'))
+else:
+    application_path = os.path.dirname(os.path.abspath(__file__))
+os.chdir(application_path)
+# -----------------------------------------------------------------------------------------
+
 import openpyxl
+import pdfplumber
 from pypdf import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import red, white, black
